@@ -164,6 +164,13 @@ sudo cp llvm_source/tools/clang/lib/Headers/opencl-c-base.h /usr/local/include/
 ```
 Note: This is only a workaround.
 
+Issue 2: `ERROR: failed to unpack archive with error: Unknown archive format`
+
+Workaround by using meson in /user
+```
+export PATH=/usr/local/bin:$PATH
+```
+
 # Useful commands:
 1. Check LLVMSPIRVLib version
 ```
