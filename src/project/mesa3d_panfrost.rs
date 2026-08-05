@@ -119,7 +119,7 @@ impl Project for Mesa3DPanFrost {
                 target!("src/gbm/libgbm_mesa.so", "libgbm_mesa"),
                 target!(
                     "src/panfrost/vulkan/libvulkan_panfrost.so",
-                    "vulkan_panfrost"
+                    "vulkan.panfrost"
                 ),
             ]),
             parse_build_ninja::<MesonNinjaTarget>(&build_path)?,
@@ -233,7 +233,8 @@ cc_defaults {{
             }
             if target.ends_with("libvulkan_panfrost.so") {
                 return module
-                    .add_prop("relative_install_path", SoongProp::Str(String::from("hw")));
+                    .add_prop("relative_install_path", SoongProp::Str(String::from("hw")))
+                    .add_prop("afdo", SoongProp::Bool(true))
             }
             module
         };
@@ -246,6 +247,15 @@ cc_defaults {{
                 return module.add_prop(
                     "header_libs",
                     SoongProp::VecStr(vec![String::from("libdrm_headers")]),
+                );
+            }
+            if path_str.contains("vulkan") {
+                return module.add_prop(
+                    "header_libs",
+                    SoongProp::VecStr(vec![
+                        String::from("libdrm_headers"),
+                        String::from("hwvulkan_headers"),
+                    ]),
                 );
             }
 
