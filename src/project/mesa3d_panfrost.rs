@@ -162,8 +162,6 @@ impl Project for Mesa3DPanFrost {
             .clone()
             .filter_default(
                 SoongProp::VecStr(vec![
-                    String::from("-DXXH_FORCE_ALIGN_CHECK=0"),
-                    String::from("-DXXH_FORCE_MEMORY_ACCESS=0"),
                     String::from("-pthread"),
                 ]),
                 "cflags",
