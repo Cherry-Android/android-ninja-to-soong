@@ -184,3 +184,6 @@ pkg-config --variable=pcfiledir LLVMSPIRVLib
 ```
 sudo cp $HOME/llvm-spirv-15/lib/pkgconfig/LLVMSPIRVLib.pc /usr/lib/pkgconfig/
 ```
+# Additional Notes
+
+Successfully generate `Android.bp` file from Mesa tags: 26.0.1 to newer tags.
