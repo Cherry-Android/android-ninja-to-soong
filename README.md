@@ -118,3 +118,62 @@ Each project in the `tests` folder contains the following files:
 Modification to `checkout.sh` or anything in the `scripts/<project>` directory trigger the generation of `Ninja` files in the CI, otherwise it uses the cached files from a previous CI run.
 
 If you want more information take a look at the [github action script](.github/workflows/presubmit.yml)
+
+# Panfrost Mesa
+
+Generate `Android.bp` for Mesa Panfrost using the `ninja-to-soong` tool
+```
+<ninja-to-soong> $ cargo run --release -- --aosp-path <path-to-mydroid> --copy-to-aosp mesa3d-panfrost
+```
+# Prerequisites for building
+
+Required host tool and versions:
+* Python: Python 3.10 or newer
+* CMake: CMake 3.17.2 or newer
+* LLVMSPIRVLib: 15.0.0.0 or newer
+* SPIRV-Tools: 2024.1 or newer
+* libdrm: 2.4.123 or newer
+* cargo: 1.75.0 or newer
+
+# Common issues:
+
+Issue 1: `fatal error: 'opencl-c.h' file not found`
+
+Cause:
+`mesa_clc` cannot find the Clang OpenGL builtin headers such as:
+* `opencl-c.h`
+* `opencl-c-base.h`
+
+These headers are usually located inside the Clang resource directory, for example:
+```
+/usr/lib/llvm-15/lib/clang/15.0.7/include
+```
+Recommended Solution:
+
+First, locate the header:
+```
+find /usr /usr/local $HOME -name opencl-c.h 2>/dev/null
+find /usr /usr/local $HOME -name opencl-c-base.h 2>/dev/null
+```
+If found, make sure your build uses the correct Clang resource directory.
+
+Temporary Workaround:
+```
+sudo cp llvm_source/tools/clang/lib/Headers/opencl-c.h /usr/local/include/
+sudo cp llvm_source/tools/clang/lib/Headers/opencl-c-base.h /usr/local/include/
+```
+Note: This is only a workaround.
+
+# Useful commands:
+1. Check LLVMSPIRVLib version
+```
+pkg-config --modversion LLVMSPIRVLib
+```
+2. Check where LLVMSPIRVLib is located
+```
+pkg-config --variable=pcfiledir LLVMSPIRVLib
+```
+3. Upgrade LLVMSPIRVLib version.
+```
+sudo cp $HOME/llvm-spirv-15/lib/pkgconfig/LLVMSPIRVLib.pc /usr/lib/pkgconfig/
+```
