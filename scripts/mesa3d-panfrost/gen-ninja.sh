@@ -28,7 +28,7 @@ meson setup \
     -Degl-lib-suffix=_mesa \
     -Dgles-lib-suffix=_mesa \
     -Dgallium-drivers=panfrost \
-    -Dvulkan-drivers= \
+    -Dvulkan-drivers=panfrost \
     -Dvideo-codecs= \
     -Degl=enabled \
     -Dllvm=disabled \
