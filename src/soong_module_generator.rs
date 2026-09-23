@@ -243,10 +243,15 @@ where
         ctx: &Context,
     ) -> Result<Vec<SoongModule>, String> {
         let target_name = target.get_name();
-        let module_name = path_to_id(match self.targets_to_gen.get_name(&target_name) {
+        let mut module_name = path_to_id(match self.targets_to_gen.get_name(&target_name) {
             Some(name) => name,
             None => self.get_module_prefix().join(&target_name),
         });
+
+        if module_name == "vulkan_panfrost" {
+            module_name = "vulkan.panfrost".to_string();
+        }
+
         let mut modules = Vec::new();
         let mut cflags = Vec::new();
         let mut includes = Vec::new();
