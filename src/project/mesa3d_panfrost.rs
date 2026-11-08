@@ -47,7 +47,7 @@ impl Mesa3DPanFrost {
 
 impl Project for Mesa3DPanFrost {
     fn get_name(&self) -> &'static str {
-        "mesa3d-panfrost"
+        "mesa3d"
     }
     fn get_android_path(&self) -> Result<PathBuf, String> {
         Ok(Path::new("vendor/oss").join(self.get_name()))
