@@ -190,6 +190,9 @@ cc_defaults {{
     shared_libs: [
         "libsync",
     ],
+    static_libs: [
+        "libperfetto_client_experimental"
+    ],
     product_variables: {{
         platform_sdk_version: {{
             cflags: ["-DANDROID_API_LEVEL=%d"],
@@ -324,10 +327,12 @@ cc_defaults {{
         }
 
         let mut libs = Vec::new();
+        let path_str = path_to_string(target);
         if target.ends_with("libdri.a")
             || target.ends_with("libgallium.a")
             || target.ends_with("libvulkan_lite_runtime.a")
             || target.ends_with("libvulkan_wsi.a")
+            || path_str.contains("panfrost")
         {
             libs.push("libsync");
         }
@@ -349,18 +354,42 @@ cc_defaults {{
             libs.push("libdrm");
         }
 
+        let mut static_libs = Vec::new();
+        if path_to_string(target).ends_with(".a") || path_to_string(target).ends_with(".so") {
+            static_libs.push("libperfetto_client_experimental");
+        }
+
         let mut sources = Vec::new();
         if target.ends_with("lib_mesa_u_gralloc.a") {
             sources.push("src/util/u_gralloc/u_gralloc_imapper5_api.cpp");
         }
 
+        let mesa_shared_libs = [
+            "dri_gbm.so",
+            "libEGL_mesa.so",
+            "libGLESv1_CM_mesa.so",
+            "libGLESv2_mesa.so",
+            "libgallium_dri.so",
+            "libgbm_mesa.so",
+            "libvulkan_panfrost.so",
+        ];
+
+        let module = if mesa_shared_libs.iter().any(|lib| target.ends_with(lib)) {
+            module.add_prop("defaults", SoongProp::VecStr(vec![String::from(DEFAULTS)]))
+        } else {
+            module
+        };
+
         module
-            .add_prop("defaults", SoongProp::VecStr(vec![String::from(DEFAULTS)]))
             .extend_prop("cflags", cflags)?
             .extend_prop("shared_libs", libs)?
+            .extend_prop("static_libs", static_libs)?
             .extend_prop("srcs", sources)
     }
     fn map_lib(&self, library: &Path, kind: LibraryKind) -> Option<(PathBuf, LibraryKind)> {
+        if library.ends_with("libperfetto.a") {
+            return Some((PathBuf::from("libperfetto_client_experimental"), LibraryKind::Static));
+        }
         if library.starts_with("src/android_stub") || !library.starts_with("src") {
             Some((PathBuf::from(file_stem(library)),kind))
         } else {
@@ -397,5 +426,6 @@ cc_defaults {{
             && !file_name.contains("libdrm")
 			&& !file_name.contains("libexpat")
             && !target.starts_with("src/android_stub")
+            && !file_name.contains("libperfetto")
     }
 }

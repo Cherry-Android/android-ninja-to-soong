@@ -23,10 +23,12 @@ meson setup \
     --sysconfdir=/system/vendor/etc \
     -Dbuildtype=release \
     -Dplatforms=android \
+    -Dperfetto=true \
     -Dplatform-sdk-version=${ANDROID_PLATFORM} \
     -Dandroid-stub=true \
     -Degl-lib-suffix=_mesa \
     -Dgles-lib-suffix=_mesa \
+    -Dandroid-libperfetto=enabled \
     -Dgallium-drivers=panfrost \
     -Dvulkan-drivers=panfrost \
     -Dvideo-codecs= \
@@ -36,7 +38,7 @@ meson setup \
     -Dtools= \
     -Dlmsensors=disabled \
     -Dandroid-libbacktrace=disabled \
-    -Dallow-fallback-for=libdrm \
+    -Dallow-fallback-for=libdrm,perfetto \
     -Dmesa-clc=system \
     -Dprecomp-compiler=system \
     -Dstrip=true \
