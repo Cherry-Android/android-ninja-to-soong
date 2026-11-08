@@ -121,6 +121,11 @@ impl Project for Mesa3DPanFrost {
                     "src/panfrost/vulkan/libvulkan_panfrost.so",
                     "vulkan.panfrost"
                 ),
+                target!("src/tool/pps/pps-producer","pps-producer"),
+                target!(
+                    "src/tool/pps/libgpudataproducer.so",
+                    "libgpudataproducer_panfrost"
+                ),
             ]),
             parse_build_ninja::<MesonNinjaTarget>(&build_path)?,
             &self.src_path,
@@ -246,7 +251,7 @@ cc_defaults {{
         let header_libs = |module: SoongModule| -> SoongModule {
             let path_str = path_to_string(target);
 
-            if path_str.contains("panfrost") {
+            if path_str.contains("panfrost") || path_str.contains("pps") {
                 return module.add_prop(
                     "header_libs",
                     SoongProp::VecStr(vec![String::from("libdrm_headers")]),
