@@ -252,7 +252,9 @@ cc_defaults {{
 
         let header_libs = |module: SoongModule| -> SoongModule {
             let path_str = path_to_string(target);
-
+            if path_str.ends_with(".rs") {
+                return module;
+            }
             if path_str.contains("panfrost") || path_str.contains("pps") {
                 return module.add_prop(
                     "header_libs",
