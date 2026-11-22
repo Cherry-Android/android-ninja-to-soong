@@ -81,7 +81,10 @@ impl Project for Mesa3DPanFrost {
         common::gen_ninja(
             &self.src_path,
             &build_path,
-            vec![path_to_string(mesa_clc_path), path_to_string(&ndk_path)],
+            &[
+                path_to_string(mesa_clc_path),
+                path_to_string(&ndk_path),
+            ],
             ctx,
             self,
         )?;
@@ -127,10 +130,9 @@ impl Project for Mesa3DPanFrost {
                     "libgpudataproducer_panfrost"
                 ),
             ]),
-            parse_build_ninja::<MesonNinjaTarget>(&build_path)?,
             &self.src_path,
-            &build_path,
             &ndk_path,
+            &build_path,
             Some(MESON_GENERATED),
             self,
             ctx,
@@ -163,17 +165,17 @@ impl Project for Mesa3DPanFrost {
         common::copy_gen_deps(gen_deps, MESON_GENERATED, &build_path, ctx, self)?;
 
         // Remove some cflags from dri_gbm to have common defaults
-        let cflags = package.get_props("dri_gbm", vec!["cflags"])?[0]
-            .clone()
-            .filter_default(
+        let mut cflags = package.get_props("dri_gbm", vec!["cflags"])?[0].clone();
+        cflags.filter_default(
                 SoongProp::VecStr(vec![
                     String::from("-DXXH_FORCE_ALIGN_CHECK=0"),
                     String::from("-DXXH_FORCE_MEMORY_ACCESS=0"),
                     String::from("-pthread"),
                 ]),
                 "cflags",
-            )?
-            .get_prop();
+            )?;
+
+        let cflags = cflags.get_prop();
 
         let default_module = SoongModule::new("cc_defaults")
             .add_prop("name", SoongProp::Str(String::from(DEFAULTS)))
