@@ -186,4 +186,6 @@ sudo cp $HOME/llvm-spirv-15/lib/pkgconfig/LLVMSPIRVLib.pc /usr/lib/pkgconfig/
 ```
 # Additional Notes
 
-Successfully generate `Android.bp` file from Mesa tags: 26.0.1 to newer tags.
+android-ninja-to-soong is now compatible with Mesa 26.0.1 through 26.3.1, 
+enabling successful Android.bp generation across these releases.
+
