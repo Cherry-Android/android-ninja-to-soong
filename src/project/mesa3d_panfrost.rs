@@ -148,16 +148,18 @@ impl Project for Mesa3DPanFrost {
 
 		// Clean subprojects to prevent Soong from parsing blueprints that came with them
         if !ctx.skip_gen_ninja {
-            execute_cmd!(
-                "git",
-                [
-                    "-C",
-                    &path_to_string(&self.src_path),
-                    "clean",
-                    "-xffd",
-                    "subprojects/*"
-                ]
-            )?;
+            for libname in ["libdrm", "expat"] {
+                execute_cmd!(
+                    "git",
+                    [
+                        "-C",
+                        &path_to_string(&self.src_path),
+                        "clean",
+                        "-xfd",
+                        format!("subprojects/{}*", libname).as_str()
+                    ]
+                )?;
+            }
         }
 
         package.filter_gen_deps(MESON_GENERATED, &gen_deps)?;
@@ -393,11 +395,32 @@ cc_defaults {{
             .extend_prop("cflags", cflags)?
             .extend_prop("shared_libs", libs)?
             .extend_prop("static_libs", static_libs)?
-            .extend_prop("srcs", sources)
+            .extend_prop("srcs", sources)?
+            .extend_prop("include_dirs", vec!["."])
     }
+
+    fn extend_rust(&self, _target: &Path, mut module: SoongModule) -> Result<SoongModule, String> {
+        if module.get_name().contains("host") {
+            module = module
+                .add_prop("compile_multilib", SoongProp::Str(String::from("first")))
+                .add_prop("host_cross_supported", SoongProp::Bool(false));
+        } else if !module.get_name().contains("proc_macro") {
+            module = module.add_prop("soc_specific", SoongProp::Bool(true));
+        }
+        Ok(module
+            .add_prop("lints", SoongProp::Str(String::from("none")))
+            .add_prop("clippy_lints", SoongProp::Str(String::from("none"))))
+    }
+
     fn map_lib(&self, library: &Path, kind: LibraryKind) -> Option<(PathBuf, LibraryKind)> {
         if library.ends_with("libperfetto.a") {
             return Some((PathBuf::from("libperfetto_client_experimental"), LibraryKind::Static));
+        }
+        if path_to_string(library).starts_with("subprojects/xml") {
+            return Some((
+                PathBuf::from("mesa3d_subprojects_xml-1_2_1_libxml_rlib"),
+                kind,
+            ));
         }
         if library.starts_with("src/android_stub") || !library.starts_with("src") {
             Some((PathBuf::from(file_stem(library)),kind))
@@ -407,6 +430,7 @@ cc_defaults {{
     }
     fn filter_cflag(&self, cflag: &str) -> bool {
         !cflag.starts_with("'")
+            && !cflag.starts_with("-std=")
             && cflag != "-fno-rtti"
             && cflag != "-Werror=pointer-arith"
             && cflag != "-Wgnu-pointer-arith"
