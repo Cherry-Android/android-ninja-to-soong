@@ -142,7 +142,7 @@ Required host tool and versions:
 
 # Common issues:
 
-Issue 1: `fatal error: 'opencl-c.h' file not found`
+**Issue 1: `fatal error: 'opencl-c.h' file not found`**
 
 Cause:
 `mesa_clc` cannot find the Clang OpenGL builtin headers such as:
@@ -169,26 +169,54 @@ sudo cp llvm_source/tools/clang/lib/Headers/opencl-c-base.h /usr/local/include/
 ```
 Note: This is only a workaround.
 
-Issue 2: `ERROR: failed to unpack archive with error: Unknown archive format`
+**Issue 2: `ERROR: failed to unpack archive with error: Unknown archive format`**
 
 Workaround by using meson in /user
 ```
 export PATH=/usr/local/bin:$PATH
 ```
 
-# Useful commands:
-1. Check LLVMSPIRVLib version
+**Issue 3: `Problem encountered: Mesa requires Rust 1.85.0 or newer`**
+
+Step 1. Install rustup
+
 ```
-pkg-config --modversion LLVMSPIRVLib
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
-2. Check where LLVMSPIRVLib is located
+
+Step 2. Environment loading
+
 ```
-pkg-config --variable=pcfiledir LLVMSPIRVLib
+source ~/.cargo/env
 ```
-3. Upgrade LLVMSPIRVLib version.
+
+Step 3. Update to the latest stable version
+
 ```
-sudo cp $HOME/llvm-spirv-15/lib/pkgconfig/LLVMSPIRVLib.pc /usr/lib/pkgconfig/
+rustup update stable
 ```
+
+Step 4. Set stable as default
+
+```
+rustup default stable
+```
+
+Step 5. Check version
+
+```bash
+rustc --version
+cargo --version
+```
+
+**Issue 3: `ERROR: Compiler rustc --target aarch64-linux-android -C`**
+
+Install target Android
+
+```bash
+rustup target add aarch64-linux-android
+```
+
 # Additional Notes
 
-Successfully generate `Android.bp` file from Mesa tags: 26.0.1 to newer tags.
+Successfully generate `Android.bp` file from Mesa tags: 27.x.x to newer tags.
